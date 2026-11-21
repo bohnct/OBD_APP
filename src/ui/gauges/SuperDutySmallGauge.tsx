@@ -1,7 +1,5 @@
 import { niceTicks } from '../units';
 import { arcPath, fmt, fraction, polar } from './geometry';
-import { GaugeIcon } from './GaugeIcon';
-import { hasIcon } from './gaugeSymbols';
 import { SMALL_GEOMETRY, SMALL_LAYOUT } from './superDutyLayout';
 import { GAUGE_HEIGHT, GAUGE_WIDTH, type GaugeProps } from './types';
 
@@ -71,49 +69,20 @@ export function SuperDutySmallGauge(props: GaugeProps) {
         </g>
       </g>
 
-      {/* The gauge's symbol (or its name, if it has none) sits inside the arc */}
-      {hasIcon(props.id) ? (
-        <g>
-          <g filter={glow}>
-            <GaugeIcon
-              id={props.id}
-              x={CX}
-              y={SMALL_LAYOUT.labelY - 10}
-              colour={theme.mark}
-              scale={1.4}
-            />
-          </g>
-          {props.id === 'boost' || props.id === 'boostMap' ? (
-            <text
-              x={CX}
-              y={SMALL_LAYOUT.labelY - 27}
-              textAnchor="middle"
-              className="gauge-label"
-              fontSize={10}
-              fontWeight={700}
-              letterSpacing={0.4}
-              fill={theme.mark}
-              filter={textGlow}
-            >
-              TURBO
-            </text>
-          ) : null}
-        </g>
-      ) : (
-        <text
-          x={CX}
-          y={SMALL_LAYOUT.labelY}
-          textAnchor="middle"
-          className="gauge-label"
-          fontSize={10.5}
-          fontWeight={700}
-          letterSpacing={0.4}
-          fill={theme.mark}
-          filter={textGlow}
-        >
-          {label}
-        </text>
-      )}
+      {/* The gauge's name sits inside the arc */}
+      <text
+        x={CX}
+        y={SMALL_LAYOUT.labelY}
+        textAnchor="middle"
+        className="gauge-label"
+        fontSize={10.5}
+        fontWeight={700}
+        letterSpacing={0.4}
+        fill={theme.mark}
+        filter={textGlow}
+      >
+        {label}
+      </text>
 
       <g
         filter={textGlow}

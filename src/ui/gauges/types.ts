@@ -3,8 +3,6 @@ import type { GaugeTheme } from '../theme/themes';
 
 export interface GaugeProps {
   readonly theme: GaugeTheme;
-  /** Parameter id, used by styles that show a symbol instead of a name. */
-  readonly id?: string | undefined;
   readonly label: string;
   readonly unit: string;
   /** Scale ends, in display units. */

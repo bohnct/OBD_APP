@@ -6,8 +6,6 @@ import { useSettings, type ScaleOverride } from '../state/settings';
 import { decimalsFor, displayConversion, unitChoices, type Conversion } from './units';
 
 export interface DisplayParameter {
-  /** The parameter's id (e.g. 'coolant'), so a style can draw a symbol for it. */
-  readonly id: string;
   readonly label: string;
   readonly name: string;
   readonly unit: string;
@@ -113,7 +111,6 @@ export function useDisplayParameter(param: Parameter | undefined): DisplayParame
 
   if (!param || !scale) return null;
   return {
-    id: param.id,
     label: param.short,
     name: param.name,
     unit: scale.unit,
