@@ -1,6 +1,7 @@
 import { trafficLog } from '../diagnostics/trafficLog';
 import {
   openBluetoothLink,
+  pickAdapter,
   openSimulatorLink,
   type LinkObserver,
   type VehicleLink,
@@ -50,6 +51,10 @@ class Session {
   async connect(kind: AdapterKind, profileId: string): Promise<void> {
     // A newer connect or disconnect makes this attempt stale; it then cleans up after itself.
     const attempt = ++this.attempt;
+    // The Bluetooth picker has to open straight from the tap, before anything is awaited.
+    const picking = kind === 'bluetooth' ? pickAdapter() : null;
+    // If cleanup below fails first, the picker's outcome no longer matters.
+    picking?.catch(() => undefined);
     await this.teardown();
     const live = useLive.getState();
     live.clear();
@@ -65,10 +70,9 @@ class Session {
     };
     let link: VehicleLink | null = null;
     try {
-      link =
-        kind === 'bluetooth'
-          ? await openBluetoothLink(profile, observer)
-          : await openSimulatorLink(profile, observer);
+      link = picking
+        ? await openBluetoothLink(await picking, profile, observer)
+        : await openSimulatorLink(profile, observer);
       this.lastKind = kind;
       await this.begin(link, profile, attempt);
     } catch (error) {
@@ -187,7 +191,9 @@ class Session {
 function describeError(error: unknown): string {
   if (error instanceof DOMException && error.name === 'NotFoundError')
     return 'No adapter was picked.';
-  return error instanceof Error ? error.message : String(error);
+  if (error instanceof Error) return error.message || error.name;
+  // Some iPhone Bluetooth browsers reject with a bare code instead of an error.
+  return `Bluetooth failed (code ${String(error)}). Check Bluetooth is on and this browser is allowed to use it in the iPhone's Settings.`;
 }
 
 export const session = new Session();

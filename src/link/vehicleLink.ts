@@ -36,12 +36,14 @@ export interface LinkObserver {
   readonly onTraffic?: (entry: TrafficEntry) => void;
 }
 
-/** Opens the browser's Bluetooth picker. Must be called from a tap. */
+export { pickAdapter };
+
+/** Opens a link to an adapter picked with `pickAdapter`. */
 export async function openBluetoothLink(
+  device: BluetoothDevice,
   profile: Profile,
   observer: LinkObserver,
 ): Promise<VehicleLink> {
-  const device = await pickAdapter();
   const reopen = async (): Promise<VehicleLink> =>
     openLink(await connectAdapter(device), profile, observer, reopen);
   return reopen();

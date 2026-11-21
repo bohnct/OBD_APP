@@ -5,15 +5,23 @@ import type { Transport } from './types';
  * Each adapter exposes one of these as a service with a notify and a write characteristic.
  */
 const UART_PROFILES = [
-  { service: 0xfff0, notify: 0xfff1, write: 0xfff2 }, // most ELM327 clones
-  { service: 0xffe0, notify: 0xffe1, write: 0xffe1 }, // HM-10 style modules
-  { service: 0x18f0, notify: 0x2af0, write: 0x2af1 }, // vLinker and OBDLink BLE
+  { service: uuid16(0xfff0), notify: uuid16(0xfff1), write: uuid16(0xfff2) }, // most ELM327 clones
+  { service: uuid16(0xffe0), notify: uuid16(0xffe1), write: uuid16(0xffe1) }, // HM-10 style modules
+  { service: uuid16(0x18f0), notify: uuid16(0x2af0), write: uuid16(0x2af1) }, // vLinker, OBDLink
   {
     service: '6e400001-b5a3-f393-e0a9-e50e24dcca9e', // Nordic UART
     notify: '6e400003-b5a3-f393-e0a9-e50e24dcca9e',
     write: '6e400002-b5a3-f393-e0a9-e50e24dcca9e',
   },
 ] as const;
+
+/**
+ * A 16-bit Bluetooth UUID in its full 128-bit form. Chrome accepts the short numbers too, but
+ * iPhone Web Bluetooth browsers such as Bluefy only accept full UUID strings.
+ */
+function uuid16(short: number): string {
+  return `0000${short.toString(16).padStart(4, '0')}-0000-1000-8000-00805f9b34fb`;
+}
 
 /** BLE writes are limited in size; 20 bytes always works. */
 const CHUNK_SIZE = 20;
@@ -22,8 +30,11 @@ export function isWebBluetoothAvailable(): boolean {
   return typeof navigator !== 'undefined' && 'bluetooth' in navigator;
 }
 
-/** Shows the browser's device picker. Must be called from a tap or click. */
-export async function pickAdapter(): Promise<BluetoothDevice> {
+/**
+ * Shows the browser's device picker. Must be called straight from a tap or click, before
+ * anything is awaited: iPhone browsers refuse it otherwise.
+ */
+export function pickAdapter(): Promise<BluetoothDevice> {
   return navigator.bluetooth.requestDevice({
     acceptAllDevices: true,
     optionalServices: UART_PROFILES.map((p) => p.service),
