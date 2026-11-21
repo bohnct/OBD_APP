@@ -73,24 +73,27 @@ export function SuperDutySmallGauge(props: GaugeProps) {
 
       {/* The gauge's symbol (or its name, if it has none) sits inside the arc */}
       {hasIcon(props.id) ? (
-        <g filter={textGlow}>
-          <GaugeIcon
-            id={props.id}
-            x={CX}
-            y={SMALL_LAYOUT.labelY - 8}
-            colour={theme.mark}
-            scale={1.2}
-          />
+        <g>
+          <g filter={glow}>
+            <GaugeIcon
+              id={props.id}
+              x={CX}
+              y={SMALL_LAYOUT.labelY - 10}
+              colour={theme.mark}
+              scale={1.4}
+            />
+          </g>
           {props.id === 'boost' || props.id === 'boostMap' ? (
             <text
               x={CX}
-              y={SMALL_LAYOUT.labelY - 22}
+              y={SMALL_LAYOUT.labelY - 27}
               textAnchor="middle"
               className="gauge-label"
               fontSize={10}
               fontWeight={700}
               letterSpacing={0.4}
               fill={theme.mark}
+              filter={textGlow}
             >
               TURBO
             </text>
