@@ -1,0 +1,22 @@
+{
+  "id": "subaru-impreza-2016",
+  "name": "2016 Subaru Impreza",
+  "extends": "generic-obd2",
+  "styles": ["subaru", "subaruConsole", "performance"],
+  "connection": {
+    "protocol": "can11_500",
+    "headers": []
+  },
+  "tankLitres": 50,
+  "parameters": [],
+  "gaugeLayout": [
+    "coolant",
+    "iat",
+    "load",
+    "throttle",
+    "timing",
+    "maf",
+    "fuelTrimShort",
+    "moduleVoltage"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "id": "ford-f350-2024-67",
+  "name": "2024 F-350 6.7 Power Stroke",
+  "extends": "generic-obd2",
+  "styles": ["superDuty", "superDutySmall", "performance"],
+  "connection": {
+    "protocol": "can11_500",
+    "headers": []
+  },
+  "fuel": "diesel",
+  "tankLitres": 182,
+  "parameters": [
+    {
+      "id": "boost",
+      "name": "Boost (turbo sensor − BARO)",
+      "short": "BOOST",
+      "unit": "kPa",
+      "request": {
+        "type": "difference",
+        "minuend": "boostSensor",
+        "subtrahend": "baro"
+      },
+      "range": [0, 276],
+      "redline": 240,
+      "note": "Standard PID 70 (turbo boost sensor A) minus barometric pressure. Not yet checked on the truck; if 70 isn't reported, pick 'MAP − BARO' instead.",
+      "verified": false
+    },
+    {
+      "id": "boostMap",
+      "name": "Boost (MAP − BARO)",
+      "short": "BOOST MAP",
+      "unit": "kPa",
+      "request": {
+        "type": "difference",
+        "minuend": "intakePressure",
+        "subtrahend": "baro"
+      },
+      "range": [0, 276],
+      "redline": 240,
+      "note": "Wide-range manifold pressure (PID 87) minus barometric pressure; a fallback if PID 70 isn't reported.",
+      "verified": false
+    }
+  ],
+  "gaugeLayout": [
+    "boost",
+    "egt",
+    "dpfTemp",
+    "dpfSoot",
+    "coolant",
+    "oilTemp",
+    "defLevel",
+    "dpfRegen"
+  ]
+}

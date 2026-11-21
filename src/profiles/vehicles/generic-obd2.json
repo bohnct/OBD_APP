@@ -1,0 +1,465 @@
+{
+  "id": "generic-obd2",
+  "name": "Generic OBD2",
+  "styles": ["performance"],
+  "connection": {
+    "protocol": "auto",
+    "headers": []
+  },
+  "parameters": [
+    {
+      "id": "rpm",
+      "name": "Engine speed",
+      "short": "RPM",
+      "unit": "rpm",
+      "request": {
+        "type": "obd",
+        "pid": "0C"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.25
+      },
+      "range": [0, 8000],
+      "redline": 6500,
+      "simulate": {
+        "idle": 750,
+        "load": 3200
+      }
+    },
+    {
+      "id": "speed",
+      "name": "Vehicle speed",
+      "short": "SPEED",
+      "unit": "km/h",
+      "request": {
+        "type": "obd",
+        "pid": "0D"
+      },
+      "range": [0, 240],
+      "simulate": {
+        "idle": 0,
+        "load": 100
+      }
+    },
+    {
+      "id": "load",
+      "name": "Calculated engine load",
+      "short": "LOAD",
+      "unit": "%",
+      "request": {
+        "type": "obd",
+        "pid": "04"
+      },
+      "decode": {
+        "scale": 0.392157
+      },
+      "range": [0, 100],
+      "simulate": {
+        "idle": 20,
+        "load": 70
+      }
+    },
+    {
+      "id": "coolant",
+      "name": "Coolant temperature",
+      "short": "COOLANT",
+      "unit": "°C",
+      "request": {
+        "type": "obd",
+        "pid": "05"
+      },
+      "decode": {
+        "offset": -40
+      },
+      "range": [40, 130],
+      "redline": 110,
+      "normal": [80, 105],
+      "simulate": {
+        "idle": 88,
+        "load": 92
+      }
+    },
+    {
+      "id": "fuelTrimShort",
+      "name": "Short-term fuel trim, bank 1",
+      "short": "FUEL TRIM",
+      "unit": "%",
+      "request": {
+        "type": "obd",
+        "pid": "06"
+      },
+      "decode": {
+        "scale": 0.78125,
+        "offset": -100
+      },
+      "range": [-25, 25],
+      "simulate": {
+        "idle": -2,
+        "load": 3
+      }
+    },
+    {
+      "id": "fuelTrimLong",
+      "name": "Long-term fuel trim, bank 1",
+      "short": "LT TRIM",
+      "unit": "%",
+      "request": {
+        "type": "obd",
+        "pid": "07"
+      },
+      "decode": {
+        "scale": 0.78125,
+        "offset": -100
+      },
+      "range": [-25, 25],
+      "simulate": {
+        "idle": 1,
+        "load": 1.5
+      }
+    },
+    {
+      "id": "fuelPressure",
+      "name": "Fuel pressure",
+      "short": "FUEL PRESS",
+      "unit": "kPa",
+      "request": {
+        "type": "obd",
+        "pid": "0A"
+      },
+      "decode": {
+        "scale": 3
+      },
+      "range": [0, 765]
+    },
+    {
+      "id": "map",
+      "name": "Intake manifold pressure",
+      "short": "MAP",
+      "unit": "kPa",
+      "request": {
+        "type": "obd",
+        "pid": "0B"
+      },
+      "range": [0, 255],
+      "simulate": {
+        "idle": 32,
+        "load": 90
+      }
+    },
+    {
+      "id": "timing",
+      "name": "Timing advance",
+      "short": "TIMING ADV",
+      "unit": "°",
+      "request": {
+        "type": "obd",
+        "pid": "0E"
+      },
+      "decode": {
+        "scale": 0.5,
+        "offset": -64
+      },
+      "range": [-10, 40],
+      "simulate": {
+        "idle": 12,
+        "load": 28
+      }
+    },
+    {
+      "id": "iat",
+      "name": "Intake air temperature",
+      "short": "INTAKE AIR",
+      "unit": "°C",
+      "request": {
+        "type": "obd",
+        "pid": "0F"
+      },
+      "decode": {
+        "offset": -40
+      },
+      "range": [-20, 90],
+      "simulate": {
+        "idle": 25,
+        "load": 32
+      }
+    },
+    {
+      "id": "maf",
+      "name": "Mass air flow",
+      "short": "AIRFLOW",
+      "unit": "g/s",
+      "request": {
+        "type": "obd",
+        "pid": "10"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.01
+      },
+      "range": [0, 120],
+      "simulate": {
+        "idle": 3,
+        "load": 45
+      }
+    },
+    {
+      "id": "throttle",
+      "name": "Throttle position",
+      "short": "THROTTLE",
+      "unit": "%",
+      "request": {
+        "type": "obd",
+        "pid": "11"
+      },
+      "decode": {
+        "scale": 0.392157
+      },
+      "range": [0, 100],
+      "simulate": {
+        "idle": 14,
+        "load": 55
+      }
+    },
+    {
+      "id": "runTime",
+      "name": "Run time since start",
+      "short": "RUN TIME",
+      "unit": "s",
+      "request": {
+        "type": "obd",
+        "pid": "1F"
+      },
+      "decode": {
+        "bytes": 2
+      },
+      "range": [0, 65535]
+    },
+    {
+      "id": "distanceMil",
+      "name": "Distance with check-engine light on",
+      "short": "MIL DIST",
+      "unit": "km",
+      "request": {
+        "type": "obd",
+        "pid": "21"
+      },
+      "decode": {
+        "bytes": 2
+      },
+      "range": [0, 65535]
+    },
+    {
+      "id": "fuelRailPressure",
+      "name": "Fuel rail gauge pressure",
+      "short": "RAIL PRESS",
+      "unit": "kPa",
+      "request": {
+        "type": "obd",
+        "pid": "23"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 10
+      },
+      "range": [0, 200000]
+    },
+    {
+      "id": "fuelLevel",
+      "name": "Fuel level",
+      "short": "FUEL",
+      "unit": "%",
+      "request": {
+        "type": "obd",
+        "pid": "2F"
+      },
+      "decode": {
+        "scale": 0.392157
+      },
+      "range": [0, 100],
+      "simulate": {
+        "idle": 60,
+        "load": 60
+      }
+    },
+    {
+      "id": "baro",
+      "name": "Barometric pressure",
+      "short": "BARO",
+      "unit": "kPa",
+      "request": {
+        "type": "obd",
+        "pid": "33"
+      },
+      "range": [80, 105],
+      "simulate": {
+        "idle": 95,
+        "load": 95
+      }
+    },
+    {
+      "id": "catTemp",
+      "name": "Catalyst temperature, bank 1 sensor 1",
+      "short": "CAT TEMP",
+      "unit": "°C",
+      "request": {
+        "type": "obd",
+        "pid": "3C"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.1,
+        "offset": -40
+      },
+      "range": [0, 1000],
+      "simulate": {
+        "idle": 420,
+        "load": 650
+      }
+    },
+    {
+      "id": "moduleVoltage",
+      "name": "Control module voltage",
+      "short": "BATTERY",
+      "unit": "V",
+      "request": {
+        "type": "obd",
+        "pid": "42"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.001
+      },
+      "range": [10, 16],
+      "redline": 15.2,
+      "simulate": {
+        "idle": 14.2,
+        "load": 14.3
+      }
+    },
+    {
+      "id": "absoluteLoad",
+      "name": "Absolute load",
+      "short": "ABS LOAD",
+      "unit": "%",
+      "request": {
+        "type": "obd",
+        "pid": "43"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.392157
+      },
+      "range": [0, 100],
+      "simulate": {
+        "idle": 18,
+        "load": 65
+      }
+    },
+    {
+      "id": "relativeThrottle",
+      "name": "Relative throttle position",
+      "short": "REL THROTTLE",
+      "unit": "%",
+      "request": {
+        "type": "obd",
+        "pid": "45"
+      },
+      "decode": {
+        "scale": 0.392157
+      },
+      "range": [0, 100]
+    },
+    {
+      "id": "ambient",
+      "name": "Ambient air temperature",
+      "short": "AMBIENT",
+      "unit": "°C",
+      "request": {
+        "type": "obd",
+        "pid": "46"
+      },
+      "decode": {
+        "offset": -40
+      },
+      "range": [-40, 50],
+      "simulate": {
+        "idle": 15,
+        "load": 15
+      }
+    },
+    {
+      "id": "pedal",
+      "name": "Accelerator pedal position D",
+      "short": "PEDAL",
+      "unit": "%",
+      "request": {
+        "type": "obd",
+        "pid": "49"
+      },
+      "decode": {
+        "scale": 0.392157
+      },
+      "range": [0, 100],
+      "simulate": {
+        "idle": 0,
+        "load": 45
+      }
+    },
+    {
+      "id": "oilTemp",
+      "name": "Engine oil temperature",
+      "short": "OIL TEMP",
+      "unit": "°C",
+      "request": {
+        "type": "obd",
+        "pid": "5C"
+      },
+      "decode": {
+        "offset": -40
+      },
+      "range": [40, 150],
+      "redline": 130
+    },
+    {
+      "id": "fuelRate",
+      "name": "Engine fuel rate",
+      "short": "FUEL RATE",
+      "unit": "L/h",
+      "request": {
+        "type": "obd",
+        "pid": "5E"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.05
+      },
+      "range": [0, 60]
+    },
+    {
+      "id": "battery",
+      "name": "Battery voltage at the OBD port",
+      "short": "BATT (PORT)",
+      "unit": "V",
+      "request": {
+        "type": "adapterVoltage"
+      },
+      "range": [10, 16],
+      "redline": 15.2,
+      "simulate": {
+        "idle": 14.1,
+        "load": 14.2
+      }
+    }
+  ],
+  "gaugeLayout": [
+    "coolant",
+    "iat",
+    "load",
+    "throttle",
+    "timing",
+    "maf",
+    "fuelTrimShort",
+    "moduleVoltage"
+  ]
+}

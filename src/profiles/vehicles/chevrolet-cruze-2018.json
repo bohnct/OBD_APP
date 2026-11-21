@@ -1,0 +1,52 @@
+{
+  "id": "chevrolet-cruze-2018",
+  "name": "2018 Chevrolet Cruze",
+  "extends": "generic-obd2",
+  "styles": ["cruze", "performance"],
+  "connection": {
+    "protocol": "can11_500",
+    "headers": []
+  },
+  "tankLitres": 52,
+  "parameters": [
+    {
+      "id": "map",
+      "name": "Intake manifold pressure",
+      "short": "MAP",
+      "unit": "kPa",
+      "request": {
+        "type": "obd",
+        "pid": "0B"
+      },
+      "range": [0, 255],
+      "simulate": {
+        "idle": 35,
+        "load": 165
+      }
+    },
+    {
+      "id": "boost",
+      "name": "Boost (MAP − BARO)",
+      "short": "BOOST",
+      "unit": "kPa",
+      "request": {
+        "type": "difference",
+        "minuend": "map",
+        "subtrahend": "baro"
+      },
+      "range": [-65, 135],
+      "redline": 125,
+      "note": "1.4L turbo; reads below 0 (vacuum) off boost."
+    }
+  ],
+  "gaugeLayout": [
+    "boost",
+    "coolant",
+    "iat",
+    "load",
+    "timing",
+    "maf",
+    "fuelTrimShort",
+    "moduleVoltage"
+  ]
+}

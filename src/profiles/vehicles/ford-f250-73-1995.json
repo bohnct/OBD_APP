@@ -1,0 +1,318 @@
+{
+  "id": "ford-f250-73-1995",
+  "name": "1995 F-250 7.3 Powerstroke",
+  "styles": ["ford95", "performance"],
+  "connection": {
+    "protocol": "j1850pwm",
+    "headers": ["C410F1", "616AF1"],
+    "manufacturerHeader": "C410F1",
+    "standardHeader": "616AF1"
+  },
+  "fuel": "diesel",
+  "parameters": [
+    {
+      "id": "rpm",
+      "name": "Engine speed",
+      "short": "RPM",
+      "unit": "rpm",
+      "request": {
+        "type": "obd",
+        "pid": "0C"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.25
+      },
+      "range": [0, 4000],
+      "redline": 3300,
+      "verified": true,
+      "note": "Answered on this truck (Nov 2026) with sensible idle values.",
+      "simulate": {
+        "idle": 680,
+        "load": 2400
+      }
+    },
+    {
+      "id": "speed",
+      "name": "Vehicle speed",
+      "short": "SPEED",
+      "unit": "km/h",
+      "request": {
+        "type": "obd",
+        "pid": "0D"
+      },
+      "range": [0, 160],
+      "verified": true,
+      "note": "Answered on this truck (Nov 2026) with sensible idle values.",
+      "simulate": {
+        "idle": 0,
+        "load": 100
+      }
+    },
+    {
+      "id": "load",
+      "name": "Calculated engine load",
+      "short": "LOAD",
+      "unit": "%",
+      "request": {
+        "type": "obd",
+        "pid": "04"
+      },
+      "decode": {
+        "scale": 0.392157
+      },
+      "range": [0, 100],
+      "verified": false,
+      "note": "Answers, but this PCM reports a constant 100%. Not useful here.",
+      "simulate": {
+        "idle": 15,
+        "load": 65
+      }
+    },
+    {
+      "id": "icp",
+      "name": "Injection control pressure",
+      "short": "ICP",
+      "unit": "psi",
+      "request": {
+        "type": "manufacturer",
+        "did": "1446"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.57
+      },
+      "range": [0, 3000],
+      "verified": true,
+      "note": "Answered on this truck (Nov 2026) with sensible idle values.",
+      "simulate": {
+        "idle": 550,
+        "load": 2100
+      }
+    },
+    {
+      "id": "ipr",
+      "name": "Injection pressure regulator duty",
+      "short": "IPR DUTY",
+      "unit": "%",
+      "request": {
+        "type": "manufacturer",
+        "did": "1434"
+      },
+      "decode": {
+        "scale": 0.39063
+      },
+      "range": [0, 100],
+      "redline": 85,
+      "verified": true,
+      "note": "Answered on this truck (Nov 2026) with sensible idle values.",
+      "simulate": {
+        "idle": 13,
+        "load": 42
+      }
+    },
+    {
+      "id": "mfdes",
+      "name": "Mass fuel desired",
+      "short": "FUEL DEMAND",
+      "unit": "mg",
+      "request": {
+        "type": "manufacturer",
+        "did": "1412"
+      },
+      "decode": {
+        "bytes": 2
+      },
+      "range": [0, 120],
+      "verified": false,
+      "note": "Answers; scale still unknown, so the number isn't in real units yet.",
+      "simulate": {
+        "idle": 10,
+        "load": 45
+      }
+    },
+    {
+      "id": "fipw",
+      "name": "Fuel injector pulse width",
+      "short": "INJ PULSE",
+      "unit": "ms",
+      "request": {
+        "type": "manufacturer",
+        "did": "1410"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.008
+      },
+      "range": [0, 6],
+      "verified": true,
+      "note": "Answered on this truck (Nov 2026) with sensible idle values.",
+      "simulate": {
+        "idle": 0.9,
+        "load": 2.6
+      }
+    },
+    {
+      "id": "eot",
+      "name": "Engine oil temperature",
+      "short": "OIL TEMP",
+      "unit": "°F",
+      "request": {
+        "type": "manufacturer",
+        "did": "1310"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.018,
+        "offset": -40
+      },
+      "range": [100, 260],
+      "redline": 240,
+      "normal": [180, 235],
+      "verified": true,
+      "note": "Answered on this truck (Nov 2026) with sensible idle values.",
+      "simulate": {
+        "idle": 195,
+        "load": 212
+      },
+      "pollMs": 2000
+    },
+    {
+      "id": "mapAbs",
+      "name": "Manifold absolute pressure",
+      "short": "MAP",
+      "unit": "psi",
+      "request": {
+        "type": "manufacturer",
+        "did": "1440"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.03625
+      },
+      "range": [0, 45],
+      "verified": true,
+      "note": "Answered on this truck (Nov 2026) with sensible idle values.",
+      "simulate": {
+        "idle": 14.4,
+        "load": 32
+      }
+    },
+    {
+      "id": "baro",
+      "name": "Barometric pressure",
+      "short": "BARO",
+      "unit": "psi",
+      "request": {
+        "type": "manufacturer",
+        "did": "1442"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.03625
+      },
+      "range": [10, 15],
+      "verified": false,
+      "note": "Answers, but reads a fixed 14.5 psi on this truck in every session (raw 0x190), even when MAP and EBP read 14.0 and 14.4 with the engine off. Not a live sensor reading.",
+      "simulate": {
+        "idle": 13.6,
+        "load": 13.6
+      },
+      "pollMs": 10000
+    },
+    {
+      "id": "boost",
+      "name": "Boost (MAP − BARO)",
+      "short": "BOOST",
+      "unit": "psi",
+      "request": {
+        "type": "zeroed",
+        "of": "mapAbs",
+        "idle": "rpm",
+        "fallback": "baro"
+      },
+      "range": [0, 30],
+      "redline": 25,
+      "normal": [0, 25],
+      "note": "MAP now minus MAP with the engine stopped (taken at key-on, remembered between sessions). This truck's BARO reads a fixed 14.5 psi, so it's only used until the first key-on."
+    },
+    {
+      "id": "ebpAbs",
+      "name": "Exhaust back pressure (absolute)",
+      "short": "EBP ABS",
+      "unit": "psi",
+      "request": {
+        "type": "manufacturer",
+        "did": "1445"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.03625
+      },
+      "range": [0, 60],
+      "verified": true,
+      "note": "Answered on this truck (Nov 2026) with sensible idle values.",
+      "simulate": {
+        "idle": 15,
+        "load": 40
+      }
+    },
+    {
+      "id": "ebp",
+      "name": "Exhaust back pressure (gauge)",
+      "short": "EXH BACK",
+      "unit": "psi",
+      "request": {
+        "type": "zeroed",
+        "of": "ebpAbs",
+        "idle": "rpm",
+        "fallback": "baro"
+      },
+      "range": [0, 60],
+      "redline": 40,
+      "normal": [0, 35],
+      "note": "EBP now minus EBP with the engine stopped, the same way as boost."
+    },
+    {
+      "id": "mat",
+      "name": "Manifold air temperature",
+      "short": "INTAKE AIR",
+      "unit": "°F",
+      "request": {
+        "type": "obd",
+        "pid": "0F"
+      },
+      "decode": {
+        "bytes": 1,
+        "scale": 1.8,
+        "offset": -40
+      },
+      "range": [0, 200],
+      "redline": 180,
+      "verified": false,
+      "note": "Neither Ford ID 16E0 (refused) nor standard PID 0F (always 0, i.e. -40°F) gives intake air temperature on this truck.",
+      "simulate": {
+        "idle": 70,
+        "load": 115
+      },
+      "pollMs": 2000
+    },
+    {
+      "id": "battery",
+      "name": "Battery voltage at the OBD port",
+      "short": "BATTERY",
+      "unit": "V",
+      "request": {
+        "type": "adapterVoltage"
+      },
+      "range": [10, 16],
+      "redline": 15.2,
+      "simulate": {
+        "idle": 14.1,
+        "load": 14.2
+      },
+      "note": "Measured by the adapter at the OBD port; shows the dip while cranking."
+    }
+  ],
+  "gaugeLayout": ["boost", "icp", "ebp", "fipw", "eot", "battery", "ipr", "rpm"]
+}
