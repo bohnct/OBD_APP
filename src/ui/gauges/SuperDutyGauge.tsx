@@ -10,8 +10,15 @@ const START = 221;
 const SWEEP = 254;
 const MAJOR_LENGTH = 13;
 const MINOR_LENGTH = 7;
-const SCALE_WIDTH = 3;
-const RED_WIDTH = 4.5;
+/** Minor ticks between each pair of numbers: every 0.2 on a 0-5 tach. */
+const MINORS = 4;
+/** The scale line is about 1.6x a major tick, as on the truck: bold but not heavy. */
+const SCALE_WIDTH = 4;
+const RED_WIDTH = 5.5;
+const MAJOR_WIDTH = 2.6;
+const MINOR_WIDTH = 1.6;
+/** The red zone deepens from the theme's orange to this red at the top of the scale. */
+const DEEP_RED = '#ff2a2a';
 
 /**
  * A dial in the style of the 2017+ Ford Super Duty analog cluster: a bright white scale
@@ -44,7 +51,9 @@ export function SuperDutyGauge(props: GaugeProps) {
   const ticks: ReactElement[] = [];
   const numbers: ReactElement[] = [];
   majors.forEach((v, k) => {
-    ticks.push(radial(`M${String(k)}`, cx, cy, R, R - MAJOR_LENGTH, angle(v), tickColor(v), 3));
+    ticks.push(
+      radial(`M${String(k)}`, cx, cy, R, R - MAJOR_LENGTH, angle(v), tickColor(v), MAJOR_WIDTH),
+    );
     const [tx, ty] = polar(cx, cy, R - 25, angle(v));
     numbers.push(
       <text
@@ -61,15 +70,28 @@ export function SuperDutyGauge(props: GaugeProps) {
       </text>,
     );
     if (k < majors.length - 1) {
-      const mv = v + step / 2;
-      ticks.push(
-        radial(`m${String(k)}`, cx, cy, R, R - MINOR_LENGTH, angle(mv), tickColor(mv), 2.2),
-      );
+      for (let m = 1; m <= MINORS; m++) {
+        const mv = v + (step * m) / (MINORS + 1);
+        ticks.push(
+          radial(
+            `m${String(k)}-${String(m)}`,
+            cx,
+            cy,
+            R,
+            R - MINOR_LENGTH,
+            angle(mv),
+            tickColor(mv),
+            MINOR_WIDTH,
+          ),
+        );
+      }
     }
   });
 
   const needleAngle = angle(value ?? lo);
   const tip = R - 6;
+  const [rx0, ry0] = polar(cx, cy, R, angle(redFrom));
+  const [rx1, ry1] = polar(cx, cy, R, angle(hi));
 
   return (
     <svg
@@ -90,6 +112,17 @@ export function SuperDutyGauge(props: GaugeProps) {
           <stop offset="0" stopColor={theme.needle} stopOpacity={0.15} />
           <stop offset="0.45" stopColor={theme.needle} stopOpacity={0.85} />
           <stop offset="1" stopColor={theme.needle} />
+        </linearGradient>
+        <linearGradient
+          id={`${gradientId}-red`}
+          gradientUnits="userSpaceOnUse"
+          x1={fmt(rx0)}
+          y1={fmt(ry0)}
+          x2={fmt(rx1)}
+          y2={fmt(ry1)}
+        >
+          <stop offset="0" stopColor={theme.red} />
+          <stop offset="1" stopColor={DEEP_RED} />
         </linearGradient>
       </defs>
 
@@ -113,7 +146,7 @@ export function SuperDutyGauge(props: GaugeProps) {
         {redFrom < hi ? (
           <path
             d={arcPath(cx, cy, R, angle(redFrom), angle(hi))}
-            stroke={theme.red}
+            stroke={`url(#${gradientId}-red)`}
             strokeWidth={RED_WIDTH}
           />
         ) : null}
@@ -214,8 +247,9 @@ export function DialScale({
   const { cx, cy } = DIAL_CENTRE;
   const at = (f: number) => START - SWEEP * f;
   const ticks: ReactElement[] = [];
-  for (let i = 0; i <= divisions * 2; i++) {
-    const major = i % 2 === 0;
+  const per = MINORS + 1;
+  for (let i = 0; i <= divisions * per; i++) {
+    const major = i % per === 0;
     ticks.push(
       radial(
         `d${String(i)}`,
@@ -223,9 +257,9 @@ export function DialScale({
         cy,
         R,
         R - (major ? MAJOR_LENGTH : MINOR_LENGTH),
-        at(i / (divisions * 2)),
+        at(i / (divisions * per)),
         colour,
-        major ? 3 : 2.2,
+        major ? MAJOR_WIDTH : MINOR_WIDTH,
       ),
     );
   }

@@ -28,8 +28,8 @@ export const SMALL_GEOMETRY = {
   MID_TICK: 7,
   /** The red warning tick sits this far past the end of the scale (degrees). */
   WARN_OFFSET: 8,
-  NEEDLE_IN: SMALL_R - 30,
-  NEEDLE_OUT: SMALL_R + 9,
+  NEEDLE_IN: SMALL_R - 40,
+  NEEDLE_OUT: SMALL_R + 7,
 } as const;
 
 const { CX, CY, R, DOWN, HALF, BAND } = SMALL_GEOMETRY;

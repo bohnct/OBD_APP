@@ -1,5 +1,7 @@
 import { niceTicks } from '../units';
 import { arcPath, fmt, fraction, polar } from './geometry';
+import { GaugeIcon } from './GaugeIcon';
+import { hasIcon } from './gaugeSymbols';
 import { SMALL_GEOMETRY, SMALL_LAYOUT } from './superDutyLayout';
 import { GAUGE_HEIGHT, GAUGE_WIDTH, type GaugeProps } from './types';
 
@@ -69,20 +71,46 @@ export function SuperDutySmallGauge(props: GaugeProps) {
         </g>
       </g>
 
-      {/* The gauge's name sits inside the arc, where the truck shows its symbol */}
-      <text
-        x={CX}
-        y={SMALL_LAYOUT.labelY}
-        textAnchor="middle"
-        className="gauge-label"
-        fontSize={10.5}
-        fontWeight={700}
-        letterSpacing={0.4}
-        fill={theme.mark}
-        filter={textGlow}
-      >
-        {label}
-      </text>
+      {/* The gauge's symbol (or its name, if it has none) sits inside the arc */}
+      {hasIcon(props.id) ? (
+        <g filter={textGlow}>
+          <GaugeIcon
+            id={props.id}
+            x={CX}
+            y={SMALL_LAYOUT.labelY - 8}
+            colour={theme.mark}
+            scale={1.2}
+          />
+          {props.id === 'boost' || props.id === 'boostMap' ? (
+            <text
+              x={CX}
+              y={SMALL_LAYOUT.labelY - 22}
+              textAnchor="middle"
+              className="gauge-label"
+              fontSize={10}
+              fontWeight={700}
+              letterSpacing={0.4}
+              fill={theme.mark}
+            >
+              TURBO
+            </text>
+          ) : null}
+        </g>
+      ) : (
+        <text
+          x={CX}
+          y={SMALL_LAYOUT.labelY}
+          textAnchor="middle"
+          className="gauge-label"
+          fontSize={10.5}
+          fontWeight={700}
+          letterSpacing={0.4}
+          fill={theme.mark}
+          filter={textGlow}
+        >
+          {label}
+        </text>
+      )}
 
       <g
         filter={textGlow}
@@ -99,14 +127,14 @@ export function SuperDutySmallGauge(props: GaugeProps) {
         </text>
       </g>
 
-      {/* Short cyan bar straddling the arc, pointing at the hidden pivot */}
+      {/* Cyan bar reaching from inside the arc to just past it, pointing at the hidden pivot */}
       <line
         x1={fmt(nx0)}
         y1={fmt(ny0)}
         x2={fmt(nx1)}
         y2={fmt(ny1)}
         stroke={theme.needle}
-        strokeWidth={6}
+        strokeWidth={5}
         opacity={value === null ? 0.25 : 1}
         filter={theme.glow ? 'url(#glow-needle)' : undefined}
       />
