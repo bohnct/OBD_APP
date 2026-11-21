@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { session } from './app/session';
 import { startHistoryRecording } from './history/recorder';
 import { startCalculations } from './trip/calculator';
@@ -14,6 +14,7 @@ import { SettingsPanel } from './ui/settings/SettingsPanel';
 import { Pager } from './ui/shell/Pager';
 import { PlotsSheet } from './ui/shell/PlotsSheet';
 import { SettingsSheet } from './ui/shell/SettingsSheet';
+import { useVerticalSwipe } from './ui/shell/useVerticalSwipe';
 import { useTheme } from './ui/theme/useTheme';
 import { Toast } from './ui/Toast';
 import { VehicleSilent } from './ui/VehicleSilent';
@@ -43,14 +44,29 @@ export function App() {
       index === 0 ? gaugeLayoutFor(settings, profile.id) : profile.parameters.map((p) => p.id),
     );
   }, []);
+  // Swipe down for settings, up for the plots, starting anywhere away from the screen edges
+  // so the phone's own edge gestures still work.
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [plotsOpen, setPlotsOpen] = useState(false);
   const onPlotsOpen = useCallback(
     (open: boolean) => {
+      setPlotsOpen(open);
       // While the plots are up, the plotted parameters (pinned below) are all that's needed.
       if (open) session.setActive([]);
       else onPageChange(page.current);
     },
     [onPageChange],
   );
+  const shell = useRef<HTMLElement>(null);
+  const onSwipeDown = useCallback(() => {
+    if (plotsOpen) onPlotsOpen(false);
+    else setSettingsOpen(true);
+  }, [plotsOpen, onPlotsOpen]);
+  const onSwipeUp = useCallback(() => {
+    if (settingsOpen) setSettingsOpen(false);
+    else onPlotsOpen(true);
+  }, [settingsOpen, onPlotsOpen]);
+  useVerticalSwipe(shell, { onSwipeDown, onSwipeUp });
 
   // The user's update-rate setting.
   const updateMs = useSettings((s) => s.updateMs);
@@ -78,6 +94,7 @@ export function App() {
 
   return (
     <main
+      ref={shell}
       className={`app style-${theme.style}${theme.glow ? ' glow' : ''}`}
       style={{ background: theme.background }}
     >
@@ -90,12 +107,12 @@ export function App() {
           { key: 'data', content: <AllDataPage theme={theme} /> },
         ]}
       />
-      <PlotsSheet theme={theme} onOpenChange={onPlotsOpen}>
+      <PlotsSheet theme={theme} open={plotsOpen} onOpenChange={onPlotsOpen}>
         <PlotsPage theme={theme} />
       </PlotsSheet>
       <Toast theme={theme} />
       <VehicleSilent theme={theme} />
-      <SettingsSheet theme={theme}>
+      <SettingsSheet theme={theme} open={settingsOpen} onOpenChange={setSettingsOpen}>
         <SettingsPanel theme={theme} />
       </SettingsSheet>
     </main>

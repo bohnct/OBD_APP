@@ -1,66 +1,35 @@
-import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import type { GaugeTheme } from '../theme/themes';
-
-const OPEN_DISTANCE = 60;
 
 interface Props {
   readonly theme: GaugeTheme;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
   readonly children: ReactNode;
 }
 
 /**
- * Settings that pull down from the top edge, like a phone's notification shade.
- * Swipe down from the top to open; swipe up, tap outside or press Escape to close.
+ * Settings that slide down from the top. Opened and closed by swipes handled in the app
+ * shell (down to open, up to close); tapping outside, the handle, or Escape also closes it.
  */
-export function SettingsSheet({ theme, children }: Props) {
-  const [open, setOpen] = useState(false);
-  const start = useRef<number | null>(null);
-
+export function SettingsSheet({ theme, open, onOpenChange, children }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') onOpenChange(false);
     };
     window.addEventListener('keydown', onKey);
     return () => {
       window.removeEventListener('keydown', onKey);
     };
-  }, []);
-
-  const begin = (e: PointerEvent<HTMLDivElement>) => {
-    // Keep receiving moves after the finger leaves the thin pull zone.
-    e.currentTarget.setPointerCapture(e.pointerId);
-    start.current = e.clientY;
-  };
-  const track = (direction: 'down' | 'up') => (e: PointerEvent) => {
-    if (start.current === null) return;
-    const dy = e.clientY - start.current;
-    if (direction === 'down' && dy > OPEN_DISTANCE) {
-      setOpen(true);
-      start.current = null;
-    } else if (direction === 'up' && dy < -OPEN_DISTANCE) {
-      setOpen(false);
-      start.current = null;
-    }
-  };
-  const end = () => {
-    start.current = null;
-  };
+  }, [onOpenChange]);
 
   return (
     <>
-      <div
-        className="pull-zone"
-        onPointerDown={begin}
-        onPointerMove={track('down')}
-        onPointerUp={end}
-        onPointerCancel={end}
-        aria-hidden="true"
-      />
       {open ? (
         <div
           className="sheet-backdrop"
           onClick={() => {
-            setOpen(false);
+            onOpenChange(false);
           }}
           aria-hidden="true"
         />
@@ -74,15 +43,16 @@ export function SettingsSheet({ theme, children }: Props) {
         inert={!open}
       >
         <div className="sheet-body">{children}</div>
-        <div
+        <button
+          type="button"
           className="sheet-handle"
-          onPointerDown={begin}
-          onPointerMove={track('up')}
-          onPointerUp={end}
-          onPointerCancel={end}
+          aria-label="Close settings"
+          onClick={() => {
+            onOpenChange(false);
+          }}
         >
           <span style={{ background: theme.sub }} />
-        </div>
+        </button>
       </div>
     </>
   );

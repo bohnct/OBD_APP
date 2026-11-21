@@ -247,16 +247,6 @@ body {
 
 /* ---------- Settings sheet ---------- */
 
-.pull-zone {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: calc(36px + env(safe-area-inset-top));
-  z-index: 10;
-  touch-action: none;
-}
-
 .sheet-backdrop {
   position: fixed;
   inset: 0;
@@ -290,7 +280,9 @@ body {
   display: flex;
   justify-content: center;
   padding: 10px 0 12px;
-  touch-action: none;
+  border: 0;
+  background: none;
+  cursor: pointer;
 }
 .sheet-handle span {
   width: 44px;
@@ -619,19 +611,21 @@ body {
 
 /* ---------- Plots page (swipe up) ---------- */
 
-.pull-zone-bottom {
+/* Reachable from the keyboard only; on screen the plots open with a swipe up. */
+.plots-open-key {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 10;
-  height: calc(26px + env(safe-area-inset-bottom));
+  left: 50%;
+  bottom: 8px;
+  width: 1px;
+  height: 1px;
   padding: 0;
   border: 0;
   background: none;
-  touch-action: none;
+  pointer-events: none;
 }
-.pull-zone-bottom:focus-visible {
+.plots-open-key:focus-visible {
+  width: 44px;
+  height: 6px;
   outline: 2px solid currentColor;
 }
 
@@ -653,7 +647,9 @@ body {
   justify-content: center;
   flex: none;
   padding: calc(10px + env(safe-area-inset-top)) 0 26px;
-  touch-action: none;
+  border: 0;
+  background: none;
+  cursor: pointer;
 }
 .plots-grab span {
   width: 44px;
