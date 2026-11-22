@@ -16,6 +16,10 @@ const PIVOT_OFFSET = 28;
 const CAP_RADIUS = 24;
 const BULB_RADIUS = 34;
 const AMBER = '#e9a24c';
+/** The word NORMAL needs about 40° of arc; its path is made wider so it never clips. */
+const NORMAL_HALF_SPAN = 40;
+/** Keep the word's centre this far (fraction of the scale) from either end. */
+const NORMAL_MARGIN = 0.28;
 /** Width of the blocks past the arc ends; the needle's tip is the same width. */
 const END_BLOCK = 5;
 /** Half the needle's width where it leaves the hub (and across the hub, by day). */
@@ -97,8 +101,12 @@ export function FordGauge(props: GaugeProps) {
   const normalId = `normal-${label.replace(/\W+/g, '-')}-${variant}`;
   let normalText = null;
   if (normal) {
-    const from = angle(fraction(normal[0], lo, hi));
-    const to = angle(fraction(normal[1], lo, hi));
+    // Centred on the normal range, but laid on a path long enough for the whole word even when
+    // that range is narrow, and kept clear of the arc ends.
+    const middle = (fraction(normal[0], lo, hi) + fraction(normal[1], lo, hi)) / 2;
+    const centre = angle(Math.min(1 - NORMAL_MARGIN, Math.max(NORMAL_MARGIN, middle)));
+    const from = centre - NORMAL_HALF_SPAN * dir;
+    const to = centre + NORMAL_HALF_SPAN * dir;
     // Printed on the pivot side of the line, like everything else on these gauges.
     const r = top ? R - 4 : R - 14;
     normalText = (
