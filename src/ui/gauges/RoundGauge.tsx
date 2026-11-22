@@ -14,6 +14,9 @@ const RED_BAND = 6;
  * A round dial in the style of the 2012-16 Subaru Impreza cluster: thin bright bezel,
  * dense white ticks, a red band along the edge for the red zone, a plain white needle
  * and a large black centre hub. The label sits above the hub, the reading below.
+ *
+ * With a theme `face` (the Subaru by day) the scale sits on a slate-blue band, the centre
+ * is dark inside a shiny blue ring, and the red zone is split into blocks at each half step.
  */
 export function RoundGauge(props: GaugeProps) {
   const { theme, label, unit, value, decimals, redline, warnLow } = props;
@@ -69,6 +72,7 @@ export function RoundGauge(props: GaugeProps) {
   });
 
   const needleAngle = angle(value ?? lo);
+  const face = theme.face ?? null; // Subaru by day
 
   return (
     <svg
@@ -79,6 +83,14 @@ export function RoundGauge(props: GaugeProps) {
     >
       {/* Face, dark bezel band and thin bright outer ring */}
       <circle cx={cx} cy={cy} r={R + 11} fill={theme.cap} />
+      {face ? (
+        <>
+          {/* Slate-blue band under the scale, dark centre, and the shiny blue ring between */}
+          <circle cx={cx} cy={cy} r={R + 4} fill={face.band} />
+          <circle cx={cx} cy={cy} r={INNER_R} fill={face.centre} />
+          <circle cx={cx} cy={cy} r={INNER_R} fill="none" stroke={face.ring} strokeWidth={1.6} />
+        </>
+      ) : null}
       <circle cx={cx} cy={cy} r={R + 6} fill="none" stroke={theme.line} strokeWidth={4} />
       <circle
         cx={cx}
@@ -90,7 +102,20 @@ export function RoundGauge(props: GaugeProps) {
         filter={glow}
       />
 
-      {redline !== undefined && redline < hi ? (
+      {face && redline !== undefined && redline < hi ? (
+        <g filter={glow}>
+          {redSegments(redline, hi, step / 2).map(([a, b]) => (
+            <path
+              key={a}
+              d={arcPath(cx, cy, R - 5, angle(a) - 0.8, angle(b) + 0.8)}
+              fill="none"
+              stroke={theme.red}
+              strokeWidth={8}
+            />
+          ))}
+        </g>
+      ) : null}
+      {!face && redline !== undefined && redline < hi ? (
         <path
           d={arcPath(cx, cy, R - RED_BAND / 2, angle(redline), angle(hi))}
           fill="none"
@@ -113,10 +138,10 @@ export function RoundGauge(props: GaugeProps) {
 
       <text
         x={cx}
-        y={cy - 24}
+        y={face ? cy - 19 : cy - 24}
         textAnchor="middle"
         className="gauge-label"
-        fontSize={10}
+        fontSize={face ? 8.5 : 10}
         letterSpacing={0.6}
         fill={theme.sub}
         filter={textGlow}
@@ -125,10 +150,10 @@ export function RoundGauge(props: GaugeProps) {
       </text>
       <text
         x={cx}
-        y={cy + 42}
+        y={face ? cy + 31 : cy + 42}
         textAnchor="middle"
         className="gauge-value"
-        fontSize={18}
+        fontSize={face ? 16 : 18}
         fill={theme.mark}
         filter={textGlow}
       >
@@ -157,6 +182,16 @@ export function RoundGauge(props: GaugeProps) {
       <circle cx={cx} cy={cy} r={15} fill="#030304" stroke={theme.line} strokeWidth={2} />
     </svg>
   );
+}
+
+/** Radius of the shiny blue ring that rims the Subaru's dark centre. */
+const INNER_R = 38;
+
+/** The red zone split at every half step, like the Subaru's segmented red band. */
+function redSegments(from: number, to: number, size: number): [number, number][] {
+  const out: [number, number][] = [];
+  for (let a = from; a < to - 1e-9; a += size) out.push([a, Math.min(to, a + size)]);
+  return out;
 }
 
 function radial(

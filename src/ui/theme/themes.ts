@@ -20,6 +20,11 @@ export interface GaugeTheme {
   /** Round dials only: bezel ring thickness. */
   readonly ringWidth: number;
   readonly glow: boolean;
+  /**
+   * Subaru by day: the slate-blue band under the scale, the dark centre, and the shiny
+   * blue ring between them. Without it the dial face is plain `cap`.
+   */
+  readonly face?: { readonly band: string; readonly centre: string; readonly ring: string };
 }
 
 export const THEMES = {
@@ -149,6 +154,8 @@ export const THEMES = {
       ring: '#c3c8ce',
       ringWidth: 1.6,
       glow: false,
+      // Sampled from a daytime photo of the tach.
+      face: { band: '#3d4a5d', centre: '#15181c', ring: '#2aa8e4' },
     },
   },
   subaruConsole: {
