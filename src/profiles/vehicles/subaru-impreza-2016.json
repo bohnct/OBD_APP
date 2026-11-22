@@ -8,15 +8,66 @@
     "headers": []
   },
   "tankLitres": 50,
-  "parameters": [],
-  "gaugeLayout": [
-    "coolant",
-    "iat",
-    "load",
-    "throttle",
-    "timing",
-    "maf",
-    "fuelTrimShort",
-    "moduleVoltage"
-  ]
+  "parameters": [
+    {
+      "id": "catTemp",
+      "name": "Catalyst temperature, bank 1 sensor 1",
+      "short": "CAT TEMP",
+      "unit": "°C",
+      "request": {
+        "type": "obd",
+        "pid": "3C"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.1,
+        "offset": -40
+      },
+      "range": [0, 1000],
+      "simulate": {
+        "idle": 420,
+        "load": 650
+      },
+      "redline": 800
+    },
+    {
+      "id": "moduleVoltage",
+      "name": "Control module voltage",
+      "short": "BATTERY",
+      "unit": "V",
+      "request": {
+        "type": "obd",
+        "pid": "42"
+      },
+      "decode": {
+        "bytes": 2,
+        "scale": 0.001
+      },
+      "range": [10, 18],
+      "redline": 15.2,
+      "simulate": {
+        "idle": 14.2,
+        "load": 14.3
+      }
+    },
+    {
+      "id": "iat",
+      "name": "Intake air temperature",
+      "short": "INTAKE AIR",
+      "unit": "°C",
+      "request": {
+        "type": "obd",
+        "pid": "0F"
+      },
+      "decode": {
+        "offset": -40
+      },
+      "range": [-40, 40],
+      "simulate": {
+        "idle": 25,
+        "load": 32
+      }
+    }
+  ],
+  "gaugeLayout": ["coolant", "oilTemp", "catTemp", "moduleVoltage", "iat", "map", "timing", "load"]
 }
