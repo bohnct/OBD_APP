@@ -104,15 +104,13 @@ export function RoundGauge(props: GaugeProps) {
 
       {face && redline !== undefined && redline < hi ? (
         <g filter={glow}>
-          {redSegments(redline, hi, step / 2).map(([a, b]) => (
-            <path
-              key={a}
-              d={arcPath(cx, cy, R - 5, angle(a) - 0.8, angle(b) + 0.8)}
-              fill="none"
-              stroke={theme.red}
-              strokeWidth={8}
-            />
-          ))}
+          {/* One band from the red line to the end, under the ticks */}
+          <path
+            d={arcPath(cx, cy, R - RED_BLOCK / 2, angle(redline), angle(hi))}
+            fill="none"
+            stroke={theme.red}
+            strokeWidth={RED_BLOCK}
+          />
         </g>
       ) : null}
       {!face && redline !== undefined && redline < hi ? (
@@ -134,6 +132,25 @@ export function RoundGauge(props: GaugeProps) {
         />
       ) : null}
       <g filter={glow}>{ticks}</g>
+      {face && redline !== undefined && redline < hi ? (
+        // Cut the red band at each numbered and half tick, so its blocks line up with the scale.
+        <g>
+          {halfSteps(lo, hi, step)
+            .filter((v) => v > redline && v < hi)
+            .map((v) =>
+              radial(
+                `cut${String(v)}`,
+                cx,
+                cy,
+                R + 0.5,
+                R - RED_BLOCK - 0.5,
+                angle(v),
+                face.band,
+                1.4,
+              ),
+            )}
+        </g>
+      ) : null}
       <g filter={textGlow}>{numbers}</g>
 
       <text
@@ -187,11 +204,13 @@ export function RoundGauge(props: GaugeProps) {
 /** Radius of the shiny blue ring that rims the Subaru's dark centre. */
 const INNER_R = 38;
 
-/** The red zone split at every half step, like the Subaru's segmented red band. */
-function redSegments(from: number, to: number, size: number): [number, number][] {
-  const out: [number, number][] = [];
-  for (let a = from; a < to - 1e-9; a += size) out.push([a, Math.min(to, a + size)]);
-  return out;
+/** Depth of the Subaru's segmented red band: the length of a numbered tick. */
+const RED_BLOCK = 10;
+
+/** Every numbered and half tick value on the scale. */
+function halfSteps(lo: number, hi: number, step: number): number[] {
+  const count = Math.round(((hi - lo) / step) * 2);
+  return Array.from({ length: count + 1 }, (_, i) => lo + (i * step) / 2);
 }
 
 function radial(
