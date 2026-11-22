@@ -2,8 +2,9 @@
  * Typed descriptions of everything the app may ask an adapter or vehicle.
  *
  * The rest of the app builds these objects; only the safety gate turns them into bytes.
- * There is deliberately no type here for clearing codes, actuator tests, writes or
- * programming: those requests cannot even be expressed.
+ * There is deliberately no type here for actuator tests, writes or programming: those
+ * requests cannot even be expressed. Clearing trouble codes is not a request type either;
+ * it has its own guarded path (CommandGate.clearCodes).
  */
 
 /** Read requests sent to the vehicle (OBD services, SAE J1979 / Ford mode 22). */

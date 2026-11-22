@@ -8,6 +8,7 @@ import { useLive } from './state/live';
 import { gaugeLayoutFor, useSettings } from './state/settings';
 import { GaugeDefs } from './ui/gauges/GaugeDefs';
 import { AllDataPage } from './ui/pages/AllDataPage';
+import { CodesPage } from './ui/pages/CodesPage';
 import { GaugePage } from './ui/pages/GaugePage';
 import { PlotsPage } from './ui/pages/PlotsPage';
 import { SettingsPanel } from './ui/settings/SettingsPanel';
@@ -19,6 +20,9 @@ import { useTheme } from './ui/theme/useTheme';
 import { Toast } from './ui/Toast';
 import { VehicleSilent } from './ui/VehicleSilent';
 import { useWakeLock } from './ui/useWakeLock';
+
+/** Page order in the pager. */
+const PAGE = { gauges: 0, data: 1, codes: 2 } as const;
 
 export function App() {
   const theme = useTheme();
@@ -36,12 +40,18 @@ export function App() {
 
   // Tell the session which parameters are on screen, so it only reads those.
   const page = useRef(0);
+  const [pageIndex, setPageIndex] = useState(0);
   const onPageChange = useCallback((index: number) => {
     page.current = index;
+    setPageIndex(index);
     const settings = useSettings.getState();
     const profile = getProfile(settings.profileId);
     session.setActive(
-      index === 0 ? gaugeLayoutFor(settings, profile.id) : profile.parameters.map((p) => p.id),
+      index === PAGE.gauges
+        ? gaugeLayoutFor(settings, profile.id)
+        : index === PAGE.data
+          ? profile.parameters.map((p) => p.id)
+          : [], // trouble codes: keep the bus quiet while they're read
     );
   }, []);
   // Swipe down for settings, up for the plots, starting anywhere away from the screen edges
@@ -105,6 +115,10 @@ export function App() {
         pages={[
           { key: 'gauges', content: <GaugePage theme={theme} /> },
           { key: 'data', content: <AllDataPage theme={theme} /> },
+          {
+            key: 'codes',
+            content: <CodesPage theme={theme} active={pageIndex === PAGE.codes && !plotsOpen} />,
+          },
         ]}
       />
       <PlotsSheet theme={theme} open={plotsOpen} onOpenChange={onPlotsOpen}>

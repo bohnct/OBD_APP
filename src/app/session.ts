@@ -3,6 +3,8 @@ import {
   openBluetoothLink,
   pickAdapter,
   openSimulatorLink,
+  type ClearResult,
+  type CodesResult,
   type LinkObserver,
   type VehicleLink,
 } from '../link/vehicleLink';
@@ -23,7 +25,8 @@ const RECONNECT_EVERY_MS = 2000;
 
 /**
  * Owns the one live connection: opening it, polling, and tearing it down.
- * Screens tell it which parameters they show; it never sends anything itself.
+ * Screens tell it which parameters they show; apart from the trouble-code page's guarded
+ * clear, nothing it sends is more than a read.
  *
  * Built for start-ups: connect with the key on, and it keeps reading through the crank.
  * If the vehicle goes quiet it keeps asking; if the adapter drops out (voltage dip) it
@@ -101,6 +104,19 @@ class Session {
   setPinned(ids: readonly string[]): void {
     this.pinned = ids;
     this.poller?.setActive(this.wanted());
+  }
+
+  /** Reads trouble codes, or null when not connected. */
+  readTroubleCodes(): Promise<CodesResult | null> {
+    return this.link ? this.link.readCodes() : Promise.resolve(null);
+  }
+
+  /**
+   * Clears trouble codes, or null when not connected. The link checks the engine is off and
+   * the safety gate needs both confirmations; this only passes the count on.
+   */
+  clearTroubleCodes(confirmations: number): Promise<ClearResult | null> {
+    return this.link ? this.link.clearCodes(confirmations) : Promise.resolve(null);
   }
 
   /** Starts reading over an open link. Used for a first connect and for a reconnect. */

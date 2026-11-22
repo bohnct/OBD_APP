@@ -4,6 +4,12 @@ import type { Transport } from './types';
 
 const DRIVE_CYCLE_S = 40;
 
+/** Example trouble codes (stored, pending) by profile id, typical for each vehicle. */
+const SIMULATED_CODES: readonly [string, readonly string[], readonly string[]][] = [
+  ['ford-f250-73', ['P1211', 'P0470'], ['P1280']],
+  ['ford-f350', ['P2463'], ['P20EE']],
+];
+
 /**
  * A pretend adapter and vehicle for working at the desk.
  *
@@ -18,13 +24,20 @@ export class SimulatorTransport implements Transport {
   private readonly startedAt = Date.now();
   private closed = false;
   private header: string | null = null;
+  /** Example trouble codes, so the codes page has something to show; cleared by mode 04. */
+  private stored: string[];
+  private pending: string[];
 
   constructor(
     private readonly profile: Profile,
     private readonly latencyMs = 12,
     /** Header the vehicle answers standard (mode 01) requests on, if only one; for tests. */
     private readonly standardOnlyOn: string | null = null,
-  ) {}
+  ) {
+    const examples = SIMULATED_CODES.find(([prefix]) => profile.id.startsWith(prefix));
+    this.stored = [...(examples?.[1] ?? ['P0171'])];
+    this.pending = [...(examples?.[2] ?? [])];
+  }
 
   write(text: string): Promise<void> {
     if (this.closed) return Promise.reject(new Error('Simulator closed.'));
@@ -71,14 +84,40 @@ export class SimulatorTransport implements Transport {
       return wrongAddress ? 'NO DATA' : this.currentData(command.slice(2));
     }
     if (mode === '22') return this.manufacturerData(command.slice(2));
-    if (mode === '03' || mode === '07' || mode === '0A') {
-      return `${(parseInt(mode, 16) + 0x40).toString(16).toUpperCase()}00`;
+    if (mode === '03') return this.codeReply('43', this.stored);
+    if (mode === '07') return this.codeReply('47', this.pending);
+    if (mode === '0A') return this.codeReply('4A', []);
+    if (command === '04') {
+      this.stored = [];
+      this.pending = [];
+      return '44';
     }
     return 'NO DATA';
   }
 
+  /** A trouble-code reply laid out the way this vehicle's bus would send it. */
+  private codeReply(echo: string, codes: readonly string[]): string {
+    const bytes = codes.map(encodeDtc);
+    if (this.profile.connection.protocol.startsWith('can')) {
+      return `${echo}${toHex([bytes.length])}${bytes.join('')}`;
+    }
+    // Older buses: three codes per line, padded with 0000.
+    const lines: string[] = [];
+    for (let i = 0; i < Math.max(1, bytes.length); i += 3) {
+      const chunk = bytes.slice(i, i + 3);
+      while (chunk.length < 3) chunk.push('0000');
+      lines.push(`${echo}${chunk.join('')}`);
+    }
+    return lines.join('\r');
+  }
+
   private currentData(pidHex: string): string {
     const pid = parseInt(pidHex, 16);
+    if (pid === 0x01) {
+      // Monitor status: check engine light on while there are stored codes.
+      const a = (this.stored.length > 0 ? 0x80 : 0) | this.stored.length;
+      return `4101${toHex([a, 0x07, 0x65, 0x00])}`;
+    }
     if (pid % 0x20 === 0) return `41${pidHex}${this.supportedBitmap(pid)}`;
     // A PID can carry several values (e.g. 8B: regen flag, DPF load, ...): lay each into
     // the same reply at its own position, OR-ing flags that share a byte.
@@ -133,4 +172,13 @@ export class SimulatorTransport implements Transport {
 
 function toHex(bytes: readonly number[]): string {
   return bytes.map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join('');
+}
+
+/** "P1211" → "1211": the two bytes of a trouble code, as hex. */
+function encodeDtc(code: string): string {
+  const letter = 'PCBU'.indexOf(code[0] ?? 'P');
+  const digit = parseInt(code[1] ?? '0', 16);
+  const rest = parseInt(code.slice(2), 16);
+  const a = ((letter & 0x03) << 6) | ((digit & 0x03) << 4) | ((rest >> 8) & 0x0f);
+  return toHex([a, rest & 0xff]);
 }

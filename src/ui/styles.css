@@ -944,3 +944,120 @@ body {
     animation: none;
   }
 }
+
+/* Trouble codes page: summary and actions on one side, the codes on the other. */
+.codes-page {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 16px;
+  height: 100%;
+  padding: 14px calc(14px + env(safe-area-inset-right)) 14px calc(14px + env(safe-area-inset-left));
+}
+.codes-summary,
+.codes-list {
+  overflow-y: auto;
+  min-height: 0;
+  touch-action: pan-x pan-y;
+}
+.codes-title {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.codes-status p,
+.codes-status,
+.codes-note,
+.codes-empty {
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.codes-lamp {
+  font-size: 16px;
+  font-weight: 600;
+}
+.codes-actions {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 8px;
+}
+.codes-button {
+  flex: 1;
+  min-height: 44px;
+  font: inherit;
+  font-size: 15px;
+  background: none;
+  border: 1.5px solid;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.codes-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.codes-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.code-row {
+  border: 1.5px solid;
+  border-radius: 10px;
+  padding: 9px 12px;
+}
+.code-pending {
+  border-style: dashed;
+}
+.code-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.code-name {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 19px;
+  font-weight: 600;
+}
+.code-kind {
+  font-size: 12px;
+  border: 1px solid;
+  border-radius: 6px;
+  padding: 1px 7px;
+}
+.code-text {
+  margin: 3px 0 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.code-source {
+  margin: 2px 0 0;
+  font-size: 12px;
+}
+.codes-confirm {
+  border: 2px solid;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.codes-confirm p {
+  margin: 0 0 6px;
+}
+.codes-confirm-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+@media (orientation: portrait) {
+  .codes-page {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    padding-top: calc(14px + env(safe-area-inset-top));
+  }
+}

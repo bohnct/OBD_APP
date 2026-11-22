@@ -60,7 +60,8 @@ export function parseVoltage(raw: string): number | null {
   return match?.[1] ? Number(match[1]) : null;
 }
 
-function joinMultiFrame(lines: string[]): string[] {
+/** Joins CAN multi-frame replies ("0:..", "1:..") into one line. */
+export function joinMultiFrame(lines: string[]): string[] {
   const frames = lines.filter((line) => /^[0-9A-F]:/.test(line));
   if (frames.length === 0) return lines;
   return [frames.map((line) => line.slice(2)).join('')];

@@ -1,5 +1,6 @@
 import type { AdapterCommand, VehicleRequest } from '../obd/requests';
-import { isAllowedAdapterCommand, isAllowedVehicleCommand } from './allowlist';
+import { CLEAR_CODES_WIRE, isAllowedAdapterCommand, isAllowedVehicleCommand } from './allowlist';
+import { consumeClearAuthorisation, type ClearAuthorisation } from './clearAuthorisation';
 import { encodeAdapterCommand, encodeVehicleRequest } from './encode';
 
 /** The raw line to the adapter. Only the gate holds one. */
@@ -56,6 +57,18 @@ export class CommandGate {
       return Promise.reject(this.refuse(`${wire} (${String(replies)} replies)`));
     }
     return this.line.send(`${wire}${String(replies)}`);
+  }
+
+  /**
+   * Sends the one non-read request the app has: clear trouble codes (mode 04). Needs a
+   * fresh, unused authorisation from authoriseClear (engine off, confirmed twice);
+   * without one nothing is sent.
+   */
+  clearCodes(authorisation: ClearAuthorisation): Promise<string> {
+    if (!consumeClearAuthorisation(authorisation)) {
+      return Promise.reject(this.refuse(`${CLEAR_CODES_WIRE} (not authorised)`));
+    }
+    return this.line.send(CLEAR_CODES_WIRE);
   }
 
   /** Sends an adapter configuration command and returns the adapter's raw reply. */

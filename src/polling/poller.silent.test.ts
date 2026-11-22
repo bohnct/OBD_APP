@@ -17,6 +17,8 @@ function silentLink(reads: string[]): VehicleLink {
       );
     },
     supportedPids: () => Promise.resolve(new Set<number>()),
+    readCodes: () => Promise.resolve({ ok: false, error: 'failed' } as const),
+    clearCodes: () => Promise.resolve({ ok: false, error: 'failed' } as const),
     onDisconnect: () => () => undefined,
     reopen: () => Promise.reject(new Error('not used')),
     close: () => Promise.resolve(),
