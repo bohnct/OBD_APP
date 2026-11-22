@@ -34,6 +34,9 @@ export function RoundGauge(props: GaugeProps) {
     (redline !== undefined && v >= redline) || (warnLow !== undefined && v <= warnLow);
   const tickColor = (v: number) => (inRed(v) ? theme.red : theme.mark);
 
+  const face = theme.face ?? null; // Subaru by day
+  // Subaru by day: in the red zone a red bar takes the place of the small ticks.
+  const redBar = face !== null && redline !== undefined && redline < hi ? redline : null;
   const ticks: ReactElement[] = [];
   const numbers: ReactElement[] = [];
   majors.forEach((v, k) => {
@@ -56,13 +59,15 @@ export function RoundGauge(props: GaugeProps) {
     for (let j = 1; j < DIVISIONS; j++) {
       const mv = v + (step * j) / DIVISIONS;
       const half = j === DIVISIONS / 2;
+      if (!half && redBar !== null && mv > redBar) continue;
       ticks.push(
         radial(
           `m${String(k)}-${String(j)}`,
           cx,
           cy,
           R,
-          R - (half ? 7 : 4.5),
+          // Half ticks in the red bar reach past its inner edge, like the numbered ones.
+          R - (half ? (redBar !== null && mv > redBar ? 9.5 : 7) : 4.5),
           angle(mv),
           tickColor(mv),
           half ? 1.8 : 1.1,
@@ -72,7 +77,6 @@ export function RoundGauge(props: GaugeProps) {
   });
 
   const needleAngle = angle(value ?? lo);
-  const face = theme.face ?? null; // Subaru by day
 
   return (
     <svg
@@ -102,15 +106,24 @@ export function RoundGauge(props: GaugeProps) {
         filter={glow}
       />
 
-      {face && redline !== undefined && redline < hi ? (
+      {redBar !== null ? (
+        // Red blocks set in from the edge, broken where each numbered and half tick crosses.
         <g filter={glow}>
-          {/* One band from the red line to the end, under the ticks */}
-          <path
-            d={arcPath(cx, cy, R - RED_BLOCK / 2, angle(redline), angle(hi))}
-            fill="none"
-            stroke={theme.red}
-            strokeWidth={RED_BLOCK}
-          />
+          {redBlocks(redBar, hi, step, lo).map(([from, to]) => (
+            <path
+              key={from}
+              d={arcPath(
+                cx,
+                cy,
+                RED_BAR.radius,
+                angle(from) - RED_BAR.gap,
+                angle(to) + RED_BAR.gap,
+              )}
+              fill="none"
+              stroke={theme.red}
+              strokeWidth={RED_BAR.width}
+            />
+          ))}
         </g>
       ) : null}
       {!face && redline !== undefined && redline < hi ? (
@@ -132,25 +145,6 @@ export function RoundGauge(props: GaugeProps) {
         />
       ) : null}
       <g filter={glow}>{ticks}</g>
-      {face && redline !== undefined && redline < hi ? (
-        // Cut the red band at each numbered and half tick, so its blocks line up with the scale.
-        <g>
-          {halfSteps(lo, hi, step)
-            .filter((v) => v > redline && v < hi)
-            .map((v) =>
-              radial(
-                `cut${String(v)}`,
-                cx,
-                cy,
-                R + 0.5,
-                R - RED_BLOCK - 0.5,
-                angle(v),
-                face.band,
-                1.4,
-              ),
-            )}
-        </g>
-      ) : null}
       <g filter={textGlow}>{numbers}</g>
 
       <text
@@ -204,13 +198,25 @@ export function RoundGauge(props: GaugeProps) {
 /** Radius of the shiny blue ring that rims the Subaru's dark centre. */
 const INNER_R = 38;
 
-/** Depth of the Subaru's segmented red band: the length of a numbered tick. */
-const RED_BLOCK = 10;
+/**
+ * The Subaru's red bar: narrower than a numbered tick and set in from the edge, so the
+ * ticks cross it and show past it on both sides, with a small gap either side of each tick.
+ */
+const RED_BAR = { radius: R - 5.5, width: 4.5, gap: 2.4 } as const;
 
-/** Every numbered and half tick value on the scale. */
-function halfSteps(lo: number, hi: number, step: number): number[] {
-  const count = Math.round(((hi - lo) / step) * 2);
-  return Array.from({ length: count + 1 }, (_, i) => lo + (i * step) / 2);
+/** The red zone cut into blocks between the numbered and half ticks. */
+function redBlocks(from: number, to: number, step: number, lo: number): [number, number][] {
+  const half = step / 2;
+  const blocks: [number, number][] = [];
+  let start = from;
+  let edge = lo + Math.floor((from - lo) / half + 1e-9) * half + half;
+  while (start < to - 1e-9) {
+    const end = Math.min(to, edge);
+    blocks.push([start, end]);
+    start = end;
+    edge += half;
+  }
+  return blocks;
 }
 
 function radial(
