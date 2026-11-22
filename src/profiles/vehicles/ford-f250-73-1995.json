@@ -231,9 +231,8 @@
         "idle": "rpm",
         "fallback": "baro"
       },
-      "range": [0, 30],
-      "redline": 25,
-      "normal": [0, 25],
+      "range": [0, 15],
+      "normal": [0, 15],
       "note": "MAP now minus MAP with the engine stopped (taken at key-on, remembered between sessions). This truck's BARO reads a fixed 14.5 psi, so it's only used until the first key-on."
     },
     {
@@ -268,9 +267,9 @@
         "idle": "rpm",
         "fallback": "baro"
       },
-      "range": [0, 60],
-      "redline": 40,
-      "normal": [0, 35],
+      "range": [0, 30],
+      "redline": 10,
+      "normal": [0, 10],
       "note": "EBP now minus EBP with the engine stopped, the same way as boost."
     },
     {
