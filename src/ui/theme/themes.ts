@@ -23,6 +23,8 @@ export interface GaugeTheme {
 }
 
 export const THEMES = {
+  // 1992-97 F-series, from the owner's photos: green at night with a warm yellow needle that
+  // lights only outside the near-black hub; white on black by day.
   ford95: {
     night: {
       style: 'ford95',
@@ -32,8 +34,8 @@ export const THEMES = {
       mark: '#3dff74',
       sub: '#25b955',
       red: '#ff2b1c',
-      needle: '#fff3ea',
-      cap: '#0d0f0e',
+      needle: '#ffcd62',
+      cap: '#040504',
       ring: '#151a17',
       ringWidth: 1.6,
       glow: true,
@@ -43,11 +45,11 @@ export const THEMES = {
       background: '#0b0b0b',
       panel: '#111111',
       line: '#2a2a2a',
-      mark: '#efeee8',
-      sub: '#a8a7a1',
-      red: '#e3392c',
-      needle: '#ff5b1e',
-      cap: '#1c1c1c',
+      mark: '#ecebe6',
+      sub: '#b9b8b2',
+      red: '#d8483e',
+      needle: '#f4f2ec',
+      cap: '#151617',
       ring: '#2a2a2a',
       ringWidth: 1.6,
       glow: false,
