@@ -199,10 +199,11 @@ export function RoundGauge(props: GaugeProps) {
 const INNER_R = 38;
 
 /**
- * The Subaru's red bar: narrower than a numbered tick and set in from the edge, so the
- * ticks cross it and show past it on both sides, with a small gap either side of each tick.
+ * The Subaru's red bar: its outside edge lines up with the outer ends of the ticks, and it
+ * is narrower than a numbered tick, so the ticks reach past its inside edge. It has a small
+ * gap either side of each numbered and half tick.
  */
-const RED_BAR = { radius: R - 5.5, width: 4.5, gap: 2.4 } as const;
+const RED_BAR = { radius: R - 4.5 / 2, width: 4.5, gap: 2.4 } as const;
 
 /** The red zone cut into blocks between the numbered and half ticks. */
 function redBlocks(from: number, to: number, step: number, lo: number): [number, number][] {
