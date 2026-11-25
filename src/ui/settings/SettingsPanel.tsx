@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { session } from '../../app/session';
-import { downloadSnapshot } from '../../diagnostics/snapshot';
+import { saveSnapshot, type SaveOutcome } from '../../diagnostics/snapshot';
 import { isWebBluetoothAvailable } from '../../link/vehicleLink';
 import { getProfile, listProfiles } from '../../profiles/registry';
 import type { GaugeStyle } from '../../profiles/schema';
@@ -228,18 +228,31 @@ function DisplayChoices() {
 
 const BUILT = new Date(__BUILD_TIME__).toLocaleString();
 
+const SAVE_MESSAGE: Record<SaveOutcome, (name: string) => string> = {
+  shared: (name) => `Shared ${name}.`,
+  downloaded: (name) => `Saved ${name} to Downloads.`,
+  cancelled: () => 'Not saved.',
+  failed: () => "Couldn't save the snapshot on this browser.",
+};
+
 function Diagnostics() {
-  const connected = useLive((s) => s.connection.status === 'connected');
   const blocked = useLive((s) => s.blocked.length);
-  const [saved, setSaved] = useState<string | null>(null);
+  const [saved, setSaved] = useState<{ name: string; outcome: SaveOutcome } | null>(null);
+  const [saving, setSaving] = useState(false);
   return (
     <>
       <div className="buttons">
         <button
           type="button"
-          disabled={!connected}
+          disabled={saving}
           onClick={() => {
-            setSaved(downloadSnapshot());
+            // Works connected or not: after a failed connect, the record of what was tried
+            // is what's needed.
+            setSaving(true);
+            void saveSnapshot().then((result) => {
+              setSaved(result);
+              setSaving(false);
+            });
           }}
         >
           Save data snapshot
@@ -247,7 +260,7 @@ function Diagnostics() {
       </div>
       <p className="hint" role="status">
         {saved
-          ? `Saved ${saved} to Downloads.`
+          ? SAVE_MESSAGE[saved.outcome](saved.name)
           : 'Records what was sent and received. Visit All data for 30 s first.'}
       </p>
       <p className="hint">
